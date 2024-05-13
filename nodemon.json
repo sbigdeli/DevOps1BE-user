@@ -1,0 +1,12 @@
+{
+    "env": {
+        "PORT": "4001",
+        "MONGO_URI": "localhost",
+        "MONGO_PORT": "27017",
+        "MONGO_USER": "admin",
+        "MONGO_PASSWORD": "password",
+        "MONGO_DB": "userdb",
+        "TODOS_API_KEY": "8fcbdb72c9d74a36be7413388341a6c0d547dd2ade2a4ee2aa13e9b16c12a63b",
+        "TOKEN_SECRET_KEY": "f04(/&(&/(0ab1e-c2f0=)(€/(#4c4e-889e-541kdshdsnv87234b8/hd+???=(!--.4eb9e5017"
+    }
+}
