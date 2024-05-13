@@ -1,0 +1,25 @@
+name: Pull Request on Main
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Post to a Slack channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: 'C072YF4QUAJ'
+          slack-message: "New pull request opened: ${{ github.event.pull_request.html_url }}"
+        env:
+          SLACK_BOT_TOKEN: xoxb-6876610135554-7092616027623-nBsy3HgBVrGCUohcEcFkfFzW
