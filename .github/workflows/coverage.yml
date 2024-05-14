@@ -1,0 +1,52 @@
+name: Code Coverage
+
+on: [pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+        
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run the tests
+      run: npm test
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Post success to Slack
+      if: success()
+      id: slack_success
+      uses: slackapi/slack-github-action@v1.26.0
+      with:
+        channel-id: 'C072YF4QUAJ'
+        slack-message: "Coverage test success for PR #${{ github.event.number }} by ${{ github.event.pull_request.user.login }}: ${{ github.event.pull_request.html_url }}"
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
+
+    - name: Post failure to Slack
+      if: failure()
+      id: slack_failure
+      uses: slackapi/slack-github-action@v1.26.0
+      with:
+        channel-id: 'C072YF4QUAJ'
+        slack-message: "Coverage test failed for PR #${{ github.event.number }} by ${{ github.event.pull_request.user.login }}: ${{ github.event.pull_request.html_url }}"
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
