@@ -21,7 +21,7 @@ jobs:
         id: slack_success
         uses: slackapi/slack-github-action@v1.26.0
         with:
-          channel-id: 'C072YF4QUA'
+          channel-id: 'C072YF4QUAJ'
           slack-message: "New pull request opened: ${{ github.event.pull_request.html_url }}"
         env:
             SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
