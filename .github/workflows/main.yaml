@@ -15,11 +15,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Post to a Slack channel
-        id: slack
+      
+      - name: Post to a Slack channel on Success
+        if: success()
+        id: slack_success
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: 'C072YF4QUA'
+          slack-message: "New pull request opened: ${{ github.event.pull_request.html_url }}"
+
+      - name: Post to a Slack channel on Failure
+        if: failure()
+        id: slack_failure
         uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: 'C072YF4QUAJ'
-          slack-message: "New pull request opened: ${{ github.event.pull_request.html_url }}"
+          slack-message: "New pull request opened, but tests failed: ${{ github.event.pull_request.html_url }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
