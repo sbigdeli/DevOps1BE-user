@@ -1,0 +1,38 @@
+# OBS! Glöm inte köra filen: kubectl apply -f deployment.yaml
+# Denna fil innehåller både deployment- och service.yaml, går att separera med --- sträckkk
+# Kör dessa kommando i ordning:
+# minikube start
+# kubectl apply -f deployment.yaml
+# kubectl get pods -l app=user
+# kubectl get deployments
+# minikube service user
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+      - name: user
+        image: vedmastaren/user:v1.0.0 # Ändra till korrekt image, hur gör man när man uppdaterar version, fråga Jon? (nu heter den vedmastaren/test i docker hub)! Behöver göra en för varje, user, user, och user...)
+        ports:
+        - containerPort: 4001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+spec:
+  ports:
+  - port: 4001
+    targetPort: 4001
+  selector:
+    app: user

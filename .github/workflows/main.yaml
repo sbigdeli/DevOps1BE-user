@@ -1,37 +1,95 @@
-name: Pull Request on Main
-
+name: build
 on:
-  pull_request:
+  push:
     branches:
       - main
-    types:
-      - opened
-
+  
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
       
-      - name: Post to a Slack channel on Success
-        if: success()
-        id: slack_success
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          channel-id: 'C072YF4QUAJ'
-          slack-message: "New pull request opened: ${{ github.event.pull_request.html_url }}"
-        env:
-            SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GH_PAT }}
 
-      - name: Post to a Slack channel on Failure
-        if: failure()
-        id: slack_failure
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          channel-id: 'C072YF4QUAJ'
-          slack-message: "New pull request opened, but tests failed: ${{ github.event.pull_request.html_url }}"
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Run npm audit
+      run: npm audit --audit-level=high
+
+    - name: Run Automated Tests
+      run: npm test
+
+    - name: Build Docker image
+      run: docker build -t vedmastaren/user . # Ändrat till vedmastaren/user
+
+    - name: Read version from version.md
+      id: version
+      run: echo "VERSION=$(cat version.md)" >> $GITHUB_ENV
+
+    - name: Tag Docker image with version
+      run: docker tag vedmastaren/user:latest vedmastaren/user:v${{ env.VERSION }} # Ändrat till vedmastaren/user
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Push Docker image to Docker Hub
+      run: docker push vedmastaren/user:v${{ env.VERSION }} # Ändrat till vedmastaren/user
+
+    - name: Add tag to commit
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git tag -a v${{ env.VERSION }} -m "Release v${{ env.VERSION }}"
+        git push https://github-actions:${GH_PAT}@github.com/Vedmastaren/DevOps1BE-user.git v${{ env.VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+    - name: Post to Slack on Success
+      if: success()
+      uses: slackapi/slack-github-action@v1.26.0
+      with:
+        channel-id: 'C072YF4QUAJ'
+        slack-message: "New push to main by ${{ github.event.pusher.name }}: ${{ github.event.compare }}. No vulnerabilities found."
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
+
+    - name: Post to Slack on Failure
+      if: failure()
+      uses: slackapi/slack-github-action@v1.26.0
+      with:
+        channel-id: 'C072YF4QUAJ'
+        slack-message: "New push to main but it failed ${{ github.event.pusher.name }}: ${{ github.event.compare }}"
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
+
+    - name: Post Audit Results to Slack
+      if: failure()  # Kör detta steg endast om npm audit hittar sårbarheter
+      uses: slackapi/slack-github-action@v1.26.0
+      with:
+        channel-id: 'C072YF4QUAJ'
+        slack-message: |
+          :warning: npm audit found high vulnerabilities!
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
+
+    - name: Post Log in to Docker Hub
+      run: echo "Docker Hub login step completed"
+
+    - name: Post Checkout repository
+      run: echo "Repository checkout step completed"
+      
+    - name: Complete job
+      run: echo "Job completed"
