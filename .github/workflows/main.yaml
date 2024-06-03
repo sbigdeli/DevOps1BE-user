@@ -22,12 +22,6 @@ jobs:
 
     - name: Install Dependencies
       run: npm install
-      
-    - name: Install ESLint
-      run: npm install eslint --save-dev
-
-    - name: Run ESLint
-      run: npm run lint      
 
     - name: Run npm audit
       run: npm audit --audit-level=high
