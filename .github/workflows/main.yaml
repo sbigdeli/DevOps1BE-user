@@ -29,6 +29,9 @@ jobs:
     - name: Run Automated Tests
       run: npm test
 
+    - name: Run ESLint
+      run: npm run lint      
+
     - name: Build Docker image
       run: docker build -t vedmastaren/user . # Ändrat till vedmastaren/user
 
