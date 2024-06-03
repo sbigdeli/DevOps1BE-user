@@ -1,0 +1,38 @@
+name: Minikube Cluster
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Minikube
+        run: |
+          # Install Minikube
+          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          chmod +x minikube
+          sudo mv minikube /usr/local/bin/
+
+          # Start Minikube
+          minikube start --driver=docker
+
+      - name: Checkout deployment.yaml from another repository
+        uses: actions/checkout@v2
+        with:
+          repository: enkas1/group-project-repo
+    
+
+      - name: Deploy Kubernetes resources
+        run: kubectl apply -f deployment.yaml
+
+      - name: Verify deployment
+        run: |
+          # Check if resources are deployed
+          kubectl get pods
+          kubectl get deployments
+          kubectl get services
+        # Optional: You can add more commands to verify the deployment as needed
