@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "concurrently \"tsc -w\" \"nodemon dist/js/app.js\"",
-    "test": "npx jest --coverage"
+    "test": "npx jest --coverage",
+    "lint": "eslint ."
   
   },
   "keywords": [],
