@@ -1,9 +1,7 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { login } from "../../../src/controllers/account";
-import { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import User from "../../../src/models/user"; // Asumiendo que este es el modelo de usuario
 import { beforeAll, afterAll, beforeEach, describe, it, expect } from "@jest/globals";
 import { getMockReq, getMockRes } from '@jest-mock/express'

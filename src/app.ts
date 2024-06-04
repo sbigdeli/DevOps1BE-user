@@ -2,6 +2,9 @@ import express, { Express } from "express"
 import mongoose from "mongoose"
 import cors from "cors"
 import todoRoutes from "./routes"
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app: Express = express()
 
@@ -13,14 +16,11 @@ app.options('*', cors());
 app.use(express.json())
 app.use(todoRoutes)
 
-
-const uri: string = `mongodb://${process.env.MONGO_URI}:${process.env.MONGO_PORT}`
-
-const mongoOptions: mongoose.ConnectOptions = { user: process.env.MONGO_USER, pass: process.env.MONGO_PASSWORD, dbName: process.env.MONGO_DB }
+const uri: string = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_URI}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
 
 
 mongoose
-  .connect(uri, mongoOptions)
+  .connect(uri)
   .then(() =>
     app.listen(PORT, () =>
       console.log(`Server running on http://localhost:${PORT}`)

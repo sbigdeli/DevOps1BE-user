@@ -9,4 +9,4 @@ RUN npm run build
 EXPOSE 4001
 
 # Command to run the application
-CMD [ "npm", "run", "start" ]
+CMD [ "npm", "run", "prod" ]
