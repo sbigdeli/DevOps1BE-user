@@ -18,6 +18,9 @@ app.use(todoRoutes)
 
 const uri: string = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_URI}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
 
+// const uri: string = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_URI}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}?authSource=admin`
+
+
 
 mongoose
   .connect(uri)
