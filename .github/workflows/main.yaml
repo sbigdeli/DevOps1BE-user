@@ -1,60 +1,60 @@
 name: build
 on:
-  push:
+  push: # Triggar workflow vid push till main-branchen
     branches:
       - main
   
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Kör på den senaste versionen av ubuntu
 
     steps:
       
-    - name: Checkout repository
+    - name: Checkout repository  # Personal access token som krävs för att Github actions ska kunna checka ut koden.
       uses: actions/checkout@v2
       with:
         token: ${{ secrets.GH_PAT }}
 
-    - name: Set up Node.js
+    - name: Set up Node.js # Installerar och sätter upp Node.js
       uses: actions/setup-node@v2
       with:
         node-version: '20'
 
-    - name: Install Dependencies
+    - name: Install Dependencies # Installerar dependencies med npm
       run: npm install
 
-    - name: Run npm audit
+    - name: Run npm audit # Kontrollerar säkerhetsproblem, Finns det high eller critical går testet ej genom. 
       run: npm audit --audit-level=high
 
-    - name: Run Automated Tests
+    - name: Run Automated Tests # Kör Test script som Jon har skapat
       run: npm test
 
-    - name: Install plugin
+    - name: Install plugin # Installerar ESLint-plugin för testing-library som en dev-dependency
       run: npm install --save-dev eslint-plugin-testing-library
 
-    - name: Run ESLint
+    - name: Run ESLint # Kör ESLint för att hitta och fixa kodningsavvikelser
       run: npm run lint
 
-    - name: Build Docker image
-      run: docker build -t vedmastaren/user . # Ändrat till vedmastaren/user
+    - name: Build Docker image  # Bygger en docker-image med taggen vedmastaren/todo
+      run: docker build -t vedmastaren/user . 
 
-    - name: Read version from version.md
+    - name: Read version from version.md # Läser versionen i version.md och spara det i en miljövariabel
       id: version
       run: echo "VERSION=$(cat version.md)" >> $GITHUB_ENV
 
-    - name: Tag Docker image with version
+    - name: Tag Docker image with version # Taggar Docker-imagen med versionsnumret
       run: docker tag vedmastaren/user:latest vedmastaren/user:v${{ env.VERSION }} # Ändrat till vedmastaren/user
 
-    - name: Log in to Docker Hub
+    - name: Log in to Docker Hub # Loggar in på dockerhub med username och password 
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-    - name: Push Docker image to Docker Hub
-      run: docker push vedmastaren/user:v${{ env.VERSION }} # Ändrat till vedmastaren/user
+    - name: Push Docker image to Docker Hub # Pushar image till dockerhub
+      run: docker push vedmastaren/user:v${{ env.VERSION }} 
 
-    - name: Add tag to commit
+    - name: Add tag to commit # Lägger tag i commit och pushar den till repot, får även här använda PAT token för autensiering
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
@@ -63,7 +63,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
-    - name: Post to Slack on Success
+    - name: Post to Slack on Success # Skickar meddelande till slack om pushen lyckades
       if: success()
       uses: slackapi/slack-github-action@v1.26.0
       with:
@@ -72,7 +72,7 @@ jobs:
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
 
-    - name: Post to Slack on Failure
+    - name: Post to Slack on Failure # Skickar meddelande till slack om pushen misslyckades
       if: failure()
       uses: slackapi/slack-github-action@v1.26.0
       with:
@@ -81,7 +81,7 @@ jobs:
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
 
-    - name: Post Audit Results to Slack
+    - name: Post Audit Results to Slack # Skickar meddelande till slack om audit misslyckades
       if: failure()  # Kör detta steg endast om npm audit hittar sårbarheter
       uses: slackapi/slack-github-action@v1.26.0
       with:
@@ -91,11 +91,11 @@ jobs:
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
 
-    - name: Post Log in to Docker Hub
+    - name: Post Log in to Docker Hub # Loggar att Docker Hub inloggningssteget är färdigt
       run: echo "Docker Hub login step completed"
 
-    - name: Post Checkout repository
+    - name: Post Checkout repository # Loggar att källkodskontrollsteget är färdigt
       run: echo "Repository checkout step completed"
       
-    - name: Complete job
+    - name: Complete job # Loggar att hela jobbet är färdigt
       run: echo "Job completed"
