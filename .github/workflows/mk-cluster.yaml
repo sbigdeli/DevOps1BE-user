@@ -1,16 +1,16 @@
-name: Minikube Cluster
+name: Minikube Cluster # Namn på github actions workflow
 
 on:
   push:
     branches:
-      - main
+      - main # Triggas vid push till main branch
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Kör på den senaste versionen av ubuntu
 
     steps:
-      - name: Set up Minikube
+      - name: Set up Minikube # Namn på minikuben samt installering och uppstart
         run: |
           # Install Minikube
           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
@@ -20,19 +20,18 @@ jobs:
           # Start Minikube
           minikube start --driver=docker
 
-      - name: Checkout deployment.yaml from another repository
-        uses: actions/checkout@v2
+      - name: Checkout deployment.yaml from another repository # Namn på steget för att checka ut en fil från annat repo
+        uses: actions/checkout@v2 # Använder github actions checkout för att klona ett annat repo
         with:
-          repository: enkas1/group-project-repo
+          repository: enkas1/group-project-repo # Anger vilket repo som ska klonas
     
 
-      - name: Deploy Kubernetes resources
-        run: kubectl apply -f deployment.yaml
+      - name: Deploy Kubernetes resources # Namn på minikube kluster
+        run: kubectl apply -f deployment.yaml # kubectl används för att applicera deployment.yaml till minikube klustret
 
-      - name: Verify deployment
+      - name: Verify deployment # Namn på verifiering samt checkar och om resurser är distribuerade
         run: |
           # Check if resources are deployed
           kubectl get pods
           kubectl get deployments
           kubectl get services
-        # Optional: You can add more commands to verify the deployment as needed
